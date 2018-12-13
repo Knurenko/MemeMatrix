@@ -30,4 +30,10 @@ public class MainActivity extends AppCompatActivity {
         }
         setContentView(mDrawView);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mDrawView.interrupt();
+    }
 }
