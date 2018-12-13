@@ -57,19 +57,10 @@ public class DrawThread extends Thread {
                     canvas = surfaceHolder.lockCanvas(null);
 
                     synchronized (surfaceHolder) {
-
                         // here will be drawing ALL THINGS on canvas
                         // all things = massive of items with .drawOnCanvas(canvas) method
                         // COMPRESSED MAGIC!! BEWARE!
-                        // mDrawView.drawPicsOnCanvas(canvas);
-
-                        //temporary epileptics test
-                        canvas.drawARGB(
-                                255,
-                                random.nextInt(255),
-                                random.nextInt(255),
-                                random.nextInt(255)
-                        );
+                        mDrawView.drawPicsOnCanvas(canvas);
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
