@@ -7,6 +7,18 @@ import android.graphics.Paint;
 
 public class Emoji {
 
+    /*
+     * note: after resetting size it will also rescale image
+
+    public void setSize(int size) {
+        mSize = size;
+        mPicture = Bitmap.createScaledBitmap(mPicture, mSize, mSize, false);
+    }
+    */
+    public int getSpeed() {
+        return mSpeed;
+    }
+
     //transparency constants
     private static final int TRANSP_1 = 255;
     private static final int TRANSP_2 = 204;
@@ -25,7 +37,7 @@ public class Emoji {
     private int mPosX;
     private int mPosY;
     //only one variable for size, instead height & width, cuz image will be always SQUARED
-    private int mSize;
+    //private int mSize;
 
     //-----------------------------------------//
     private QueuePos mQueuePos;
@@ -73,29 +85,18 @@ public class Emoji {
         mPosY = posY;
     }
 
-    public int getSize() {
-        return mSize;
-    }
 
-    /**
-     * note: after resetting size it will also rescale image
-     */
-    public void setSize(int size) {
-        mSize = size;
-        mPicture = Bitmap.createScaledBitmap(mPicture, mSize, mSize, false);
-    }
+    //public int getSize() { return mSize; }
 
-    public int getSpeed() {
-        return mSpeed;
+    public void setPicture(Bitmap picture) {
+        mPicture = picture;
     }
 
     public void setSpeed(int speed) {
         mSpeed = speed;
     }
 
-    public QueuePos getQueuePos() {
-        return mQueuePos;
-    }
+    //public QueuePos getQueuePos() { return mQueuePos; }
 
     public void setQueuePos(QueuePos queuePos) {
         this.mQueuePos = queuePos;

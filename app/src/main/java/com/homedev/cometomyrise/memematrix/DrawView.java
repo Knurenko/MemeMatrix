@@ -1,5 +1,6 @@
 package com.homedev.cometomyrise.memematrix;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,8 +8,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.homedev.cometomyrise.memematrix.moving_objects.Emoji;
 
@@ -20,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The feature of the SurfaceView class is that it provides a separate Canvas for drawing,
  * actions with which should be carried out in a separate application thread.
  */
-public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Runnable, View.OnTouchListener {
 
     //--------------------------------------------------------//
     //                  C O N S T A N T S                     //
@@ -28,7 +31,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     private static final int MAX_SPAWN_TIME_MILLIS = 1000;
     private static final int CELL_SIDE = 40;
     private static final int MAX_SPEED = 8;
-    private static final boolean GRID_SHOW = true;
+    private static final boolean GRID_SHOW = false;
 
 
     //--------------------------------------------------------//
@@ -38,8 +41,9 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     // thread to get canvas, using surfaceHolder.lockCanvas
     private DrawThread mDrawThread;
     //variable to store image
-    private Bitmap mEmojiPic;
-    //test emoji object item
+    private Bitmap mEmojiSimplePic;
+    private Bitmap mEmojiMatrixPic;
+    private boolean isMatrixVisibility;
     private Random mRandom = new Random();
     //using concurrentHashMap to avoid ConcurrentModificationException
     private ConcurrentHashMap<Emoji, Emoji> mEmojiMap = new ConcurrentHashMap<>();
@@ -56,13 +60,16 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     //--------------------------------------------------------//
     //                 C O N S T R U C T O R                  //
 
+    @SuppressLint("ClickableViewAccessibility")
     public DrawView(Context context) {
         super(context);
         getHolder().addCallback(this);
+        this.setOnTouchListener(this);
 
         //init thread
         mDrawThread = new DrawThread(this);
         spawnThread = new Thread(this);
+        isMatrixVisibility = false;
     }
     //--------------------------------------------------------//
 
@@ -81,8 +88,14 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         screenBoundY = this.getHeight();
 
         //load pic
-        mEmojiPic = Bitmap.createScaledBitmap(
+        mEmojiSimplePic = Bitmap.createScaledBitmap(
                 BitmapFactory.decodeResource(getResources(), R.drawable.emoji_rofl_openeye),
+                screenBoundX / 10,      // size of emoji items will be x10 smaller than width of screen
+                screenBoundX / 10,
+                false
+        );
+        mEmojiMatrixPic = Bitmap.createScaledBitmap(
+                BitmapFactory.decodeResource(getResources(), R.drawable.emoji_matrix),
                 screenBoundX / 10,      // size of emoji items will be x10 smaller than width of screen
                 screenBoundX / 10,
                 false
@@ -115,6 +128,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         for (Emoji item : mEmojiMap.values()) {
             //cycle across all hash map
             if (item.getPosY() < screenBoundY) {
+                item.setPicture(isMatrixVisibility ? mEmojiMatrixPic : mEmojiSimplePic);
                 item.drawItemOnCanvas(canvas);
             } else {
                 mEmojiMap.remove(item);
@@ -122,7 +136,6 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
 
     }
-    //--------------------------------------------------------//
 
     private void drawBackground(Canvas canvas) {
         canvas.drawColor(Color.BLACK);
@@ -151,6 +164,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
             //draw prepared path on canvas
             canvas.drawPath(path, paint);
+
+            //todo add wake_up_neo text in center of screen
         }
     }
     //--------------------------------------------------------//
@@ -181,14 +196,14 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         while (spawnRunning) {
             //init first item of array
             Emoji[] items = new Emoji[5];
-            items[0] = new Emoji(mEmojiPic);
+            items[0] = new Emoji(mEmojiSimplePic);
             items[0].setPosY(0);
-            items[0].setPosX(mRandom.nextInt((screenBoundX - mEmojiPic.getWidth())));
+            items[0].setPosX(mRandom.nextInt((screenBoundX - mEmojiSimplePic.getWidth())));
             items[0].setSpeed(mRandom.nextInt(MAX_SPEED) + 1);
 
             //init other 4 items
             for (int i = 1; i < items.length; i++) {
-                items[i] = new Emoji(mEmojiPic);
+                items[i] = new Emoji(mEmojiSimplePic);
                 items[i].setPosX(items[0].getPosX());
                 items[i].setPosY((items[i - 1].getPosY() - items[0].getSpeed() * 8) + 3);
                 items[i].setSpeed(items[0].getSpeed());
@@ -215,4 +230,28 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
     //--------------------------------------------------------//
 
+    //--------------------------------------------------------//
+    //        MATRIX   VISION    MODE   CHANGING   CODE       //
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                //enable matrix visibility
+                isMatrixVisibility = true;
+            }
+            break;
+
+            case MotionEvent.ACTION_UP: {
+                //disable matrix visibility
+                isMatrixVisibility = false;
+            }
+            break;
+
+            default:
+                break;
+        }
+        return true;
+    }
+    //--------------------------------------------------------//
 }

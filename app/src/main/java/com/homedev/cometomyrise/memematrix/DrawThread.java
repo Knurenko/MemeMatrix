@@ -3,7 +3,6 @@ package com.homedev.cometomyrise.memematrix;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
-import java.util.Random;
 
 /**
  * Thread for drawing pics on Canvas from SurfaceView
@@ -22,8 +21,6 @@ public class DrawThread extends Thread {
     //variable to calculate elapsed time
     private long prevTime;
 
-    private Random random = new Random();  // random instance for draw full canvas by color todo delete soon
-
 
     //-------- C O N S T R U C T O R ----------//
     DrawThread(DrawView container) {
@@ -32,7 +29,7 @@ public class DrawThread extends Thread {
     }
     //-----------------------------------------//
 
-    public void setRunning(boolean run) {
+    void setRunning(boolean run) {
         running = run;
     }
 
