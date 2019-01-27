@@ -74,7 +74,7 @@ public class DrawThread extends Thread {
     /**
      * method to stop thread
      */
-    public void interrupt() {
+    void kill() {
         boolean retry = true;
 
         //cycled thread killing

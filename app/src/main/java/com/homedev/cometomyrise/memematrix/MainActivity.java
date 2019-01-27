@@ -8,13 +8,12 @@ import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DrawView mDrawView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDrawView = new DrawView(this);
+        DrawView drawView = new DrawView(this);
+        drawView.mContext = getApplicationContext();
 
         //landscape or portrait orientation only
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -28,12 +27,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        setContentView(mDrawView);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mDrawView.interrupt();
+        setContentView(drawView);
     }
 }
